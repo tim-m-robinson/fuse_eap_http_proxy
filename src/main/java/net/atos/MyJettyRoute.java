@@ -31,7 +31,7 @@ import org.apache.camel.cdi.Uri;
 @ContextName("myJettyCamel")
 public class MyJettyRoute extends RouteBuilder {
 
-    @Inject @Uri("jetty:http://0.0.0.0:1080/camel/hello?matchOnUriPrefix=true")
+    @Inject @Uri("jetty:http://0.0.0.0:1080/proxy?matchOnUriPrefix=true")
     private Endpoint jettyEndpoint;
 
     @Override
@@ -43,7 +43,7 @@ public class MyJettyRoute extends RouteBuilder {
         	.to("log:?level=INFO&showAll=true&showStreams=true")    		
         	//.log("***: ${in.body}")
         	.doTry()
-            	.to("jetty:http://0.0.0.0:9999/ws/hello?bridgeEndpoint=true&eagerCheckContentAvailable=true&throwExceptionOnFailure=false")
+            	.to("jetty:http://dummy:8080/?bridgeEndpoint=true&eagerCheckContentAvailable=true&throwExceptionOnFailure=false")
             .doCatch(Exception.class)
             	.setHeader(Exchange.HTTP_RESPONSE_CODE)
             		.constant(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())

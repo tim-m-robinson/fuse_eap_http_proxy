@@ -17,6 +17,7 @@
     <version.eap.bom>1.0.7.Final</version.eap.bom>
     <version.fuse>6.3.0.redhat-187</version.fuse>
     <version.camel>2.17.0.redhat-630187</version.camel>
+    <version.docker.maven.plugin>0.21.0</version.docker.maven.plugin>
   </properties>
 
   <dependencyManagement>
@@ -83,6 +84,33 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${version.maven.surefire}</version>
+      </plugin>
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>${version.docker.maven.plugin}</version>
+        <configuration>
+          <images>
+            <image>
+              <name>${project.artifactId}:${project.version}</name>
+              <build>
+                <assembly>
+                  <descriptorRef>artifact</descriptorRef>
+                  <targetDir>/opt/eap/standalone/deployments</targetDir>
+                </assembly>
+                <!-- requires fuse on eap Docker image -->
+                <from>fuse_eap:6.3.0</from>
+                <tags>
+                  <tag>latest</tag>
+                </tags>
+                <labels>
+                  <datetimestamp>${maven.build.timestamp}</datetimestamp>
+                  <version>${project.version}</version>
+                </labels>
+              </build>
+            </image>
+          </images>
+        </configuration>
       </plugin>
     </plugins>
   </build>
