@@ -5,6 +5,8 @@ node {
 
         // read project details from pom.xml
         def pom = readMavenPom file: 'pom.xml'
+        env.ARTIFACT_ID = pom.getArtifactId()
+        echo "${ARTIFACT_ID}"
 
         // set BUILD_TIMESTAMP
         def now = new Date()
@@ -57,13 +59,13 @@ node {
     
     stage('Publish WAR') {
         withCredentials([usernameColonPassword(credentialsId: 'nexus', variable: 'USERPASS')]) {
-            sh '''curl -v -u ${USERPASS} --upload-file target/${pom.artifactId}.war \
-                     http://nexus:8081/repository/maven-snapshots/net/atos/${pom.artifactId}/${BUILD_TIMESTAMP}-SNAPSHOT/${pom.artifactId}-${BUILD_TIMESTAMP}-SNAPSHOT.war'''
+            sh '''curl -v -u ${USERPASS} --upload-file target/${ARTIFACT_ID}.war \
+                     http://nexus:8081/repository/maven-snapshots/net/atos/${ARTIFACT_ID}/${BUILD_TIMESTAMP}-SNAPSHOT/${ARTIFACT_ID}-${BUILD_TIMESTAMP}-SNAPSHOT.war'''
         }
     }
 
     stage('Publish Image') {
-        def img = docker.image('${pom.artifactId}:1.0-SNAPSHOT');
+        def img = docker.image('${ARTIFACT_ID}:1.0-SNAPSHOT');
         docker.withRegistry('http://nexus:2375', 'nexus') {
           img.push();
         }
